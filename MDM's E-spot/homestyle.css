@@ -1,0 +1,142 @@
+/* Home Page Styles */
+.home-body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: url("background.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+
+/* Navigation */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(0,0,0,0.6);
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.logo {
+  height: 50px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+  color: #ffcc00;
+}
+
+/* Hero Section */
+.hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: rgba(0,0,0,0.5); /* dark overlay for readability */
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #5563c1;
+}
+/* Dashboard Body Styles */
+body.dashboard-body {
+  background: #0d0d1a;
+  font-family: Arial, sans-serif;
+  color: white;
+  margin: 0;
+  padding-top: 80px;
+}
+
+/* Navbar */
+.navbar {
+  background: #1a1a2e;
+  padding: 8px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 60px;
+}
+
+.navbar .left-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.navbar .logo {
+  max-height: 50px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
+/* Google Translate Styles */
+#google_translate_element {
+  margin-top: 5px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00d9ff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.payment-details {
+  margin-top: 10px;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #00d4ff;
+  border-radius: 6px;
+  background: #1a1a2e;
+  display: none;
+  color: white;
+}
+.payment-details img {
+  height: 35px;
+  margin-bottom: 5px;
+}
+

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+  <nav class="navbar">
+    <h1>My Store</h1>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="store.html" class="active">Store</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="store">
+    <h2>Choose Your Game</h2>
+    <div class="game-grid">
+      <!-- MLBB Card -->
+      <a href="purchase.html" class="game-card">
+        <img src="mlbb.jpg" alt="Mobile Legends">
+        <p>Mobile Legends</p>
+      </a>
+
+      <!-- Example Other Game -->
+      <a href="purchase.html" class="game-card">
+        <img src="valorant.jpg" alt="Valorant">
+        <p>Valorant</p>
+      </a>
+
+      <!-- Example Other Game -->
+      <a href="purchase.html" class="game-card">
+        <img src="genshin.jpg" alt="Genshin Impact">
+        <p>Genshin Impact</p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) {
+      window.location.href = "SignIn.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "SignIn.html";
+    }
+  </script>
+</body>
+</html>

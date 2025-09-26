@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background:#0d0d1a; color:white; font-family: Arial, sans-serif; }
+    .admin-container { margin:50px auto; max-width:900px; padding:20px; background:#111; border-radius:10px; }
+    table { width:100%; border-collapse: collapse; margin-top:1rem; }
+    th, td { border:1px solid #333; padding:10px; text-align:center; }
+    th { background:#667eea; color:white; }
+    button { padding:5px 10px; border:none; border-radius:5px; cursor:pointer; }
+    .delete-btn { background:red; color:white; }
+    .edit-btn { background:orange; color:white; }
+    .role-btn { background:#667eea; color:white; }
+    .ban-container, .password-container, .discount-container { margin-top:30px; background:#1a1a2e; padding:15px; border-radius:8px; }
+    .ban-container input, .password-container input, .discount-container input, .discount-container select { padding:5px; margin:5px 10px 5px 0; border-radius:4px; border:none; }
+    .ban-btn { background:red; color:white; }
+    .unban-btn { background:green; color:white; }
+    .save-pass-btn { background:#667eea; color:white; }
+    /* discount table specific */
+    #discountTable { margin-top:12px; }
+    #discountTable th, #discountTable td { font-size:14px; }
+    .small-note { font-size:12px; color:#bbb; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h2>Admin Dashboard</h2>
+    <a href="SignIn.html" style="color:white;">Logout</a>
+  </div>
+
+  <div class="admin-container">
+    <h2>Manage Users</h2>
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+
+    <div class="ban-container">
+      <h3>Ban / Unban Email</h3>
+      <input type="text" id="banEmailInput" placeholder="Email to ban/unban">
+      <input type="password" id="banPassInput" placeholder="Admin Password">
+      <button class="ban-btn" onclick="banEmail()">Ban</button>
+      <button class="unban-btn" onclick="unbanEmail()">Unban</button>
+    </div>
+
+    <div class="password-container">
+      <h3>Store User Password</h3>
+      <input type="text" id="passEmailInput" placeholder="User Email">
+      <input type="text" id="passInput" placeholder="Password">
+      <input type="password" id="passAdminInput" placeholder="Admin Password">
+      <button class="save-pass-btn" onclick="savePassword()">Save</button>
+      <div id="storedPasswords" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- Discount Code Manager (admin only) -->
+    <div class="discount-container">
+      <h3>Manage Discount Codes</h3>
+
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="codeInput" placeholder="e.g. SUMMER50 (letters/numbers only)">
+        <input type="number" id="discountValue" placeholder="Discount % (1-100)" min="1" max="100">
+        <select id="codeType">
+          <option value="forever">Forever</option>
+          <option value="once">One-time Use</option>
+        </select>
+        <input type="password" id="codeAdminPass" placeholder="Admin Password">
+        <button id="addCodeBtn" class="save-pass-btn" onclick="addDiscountCodeAdmin()">Add Code</button>
+        <button id="cancelEditBtn" style="display:none; margin-left:8px;" onclick="cancelEdit()">Cancel</button>
+      </div>
+
+      <p class="small-note">Create codes (forever or one-time). Use the table below to edit, delete or see used status.</p>
+
+      <!-- Existing simple list (kept for backward compatibility, optional) -->
+      <div id="discountCodesList" style="margin-top:10px; display:none;"></div>
+
+      <!-- New table to show existing codes clearly -->
+      <table id="discountTable">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Value</th>
+            <th>Type</th>
+            <th>Used</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="discountTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+  const ADMIN_PASSWORD = "NM";
+
+  // show discount UI always (remove admin-only hiding)
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      const discountContainer = document.querySelector('.discount-container');
+      if (discountContainer) discountContainer.style.display = 'block';
+
+      // initial loads
+      loadUsers();
+      displayStoredPasswords();
+      displayDiscountCodes();
+    } catch (err) {
+      console.error('init error', err);
+      const discountContainer = document.querySelector('.discount-container');
+      if (discountContainer) discountContainer.style.display = 'block';
+      loadUsers();
+      displayStoredPasswords();
+      displayDiscountCodes();
+    }
+  });
+
+    // --------------- user management (unchanged) ---------------
+    function loadUsers() {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+      const bannedEmails = JSON.parse(localStorage.getItem('bannedEmails')) || [];
+
+      users.forEach((user, index) => {
+        const row = document.createElement('tr');
+        const isBanned = bannedEmails.includes(user.email);
+        row.innerHTML = `
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role || 'user'}</td>
+          <td>
+            <button class="role-btn" onclick="toggleRole(${index})" ${isBanned?"disabled":""}>Toggle Role</button>
+            <button class="delete-btn" onclick="deleteUser(${index})">Delete</button>
+            ${isBanned ? "<span style='color:red; margin-left:10px;'>BANNED</span>":""}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function deleteUser(index) {
+      let users = JSON.parse(localStorage.getItem('users')) || [];
+      if(confirm(`Delete ${users[index].name}?`)) {
+        users.splice(index,1);
+        localStorage.setItem('users',JSON.stringify(users));
+        loadUsers();
+      }
+    }
+
+    function toggleRole(index) {
+      let users = JSON.parse(localStorage.getItem('users')) || [];
+      users[index].role = users[index].role==="admin"?"user":"admin";
+      localStorage.setItem('users', JSON.stringify(users));
+      loadUsers();
+    }
+
+    function banEmail() {
+      const email = document.getElementById('banEmailInput').value.trim();
+      const password = document.getElementById('banPassInput').value;
+      if(password !== ADMIN_PASSWORD) { alert("❌ Wrong password!"); return; }
+      if(!email) { alert("Enter an email!"); return; }
+
+      let bannedEmails = JSON.parse(localStorage.getItem('bannedEmails')) || [];
+      if(!bannedEmails.includes(email)) {
+        bannedEmails.push(email);
+        localStorage.setItem('bannedEmails', JSON.stringify(bannedEmails));
+        alert(`✅ ${email} has been banned!`);
+        loadUsers();
+      } else { alert(`${email} is already banned.`); }
+    }
+
+    function unbanEmail() {
+      const email = document.getElementById('banEmailInput').value.trim();
+      const password = document.getElementById('banPassInput').value;
+      if(password !== ADMIN_PASSWORD) { alert("❌ Wrong password!"); return; }
+      if(!email) { alert("Enter an email!"); return; }
+
+      let bannedEmails = JSON.parse(localStorage.getItem('bannedEmails')) || [];
+      const index = bannedEmails.indexOf(email);
+      if(index>-1) {
+        bannedEmails.splice(index,1);
+        localStorage.setItem('bannedEmails', JSON.stringify(bannedEmails));
+        alert(`✅ ${email} has been unbanned!`);
+        loadUsers();
+      } else { alert(`${email} is not banned.`); }
+    }
+
+    // --------------- stored passwords (unchanged) ---------------
+    function savePassword() {
+      const email = document.getElementById('passEmailInput').value.trim();
+      const password = document.getElementById('passInput').value.trim();
+      const adminPass = document.getElementById('passAdminInput').value;
+      if(adminPass !== ADMIN_PASSWORD) { alert("❌ Wrong admin password!"); return; }
+      if(!email || !password) { alert("Enter both email and password!"); return; }
+
+      const BLOCKED_PASSWORDS = ["shinliana26"];
+      if (BLOCKED_PASSWORDS.includes(password.toLowerCase())) {
+        alert("❌ This password is not allowed here.");
+        return;
+      }
+
+      let storedPasswords = JSON.parse(localStorage.getItem('storedPasswords')) || {};
+      storedPasswords[email] = password;
+      localStorage.setItem('storedPasswords', JSON.stringify(storedPasswords));
+      alert(`✅ Password for ${email} saved!`);
+      displayStoredPasswords();
+    }
+
+    function displayStoredPasswords() {
+      const storedPasswords = JSON.parse(localStorage.getItem('storedPasswords')) || {};
+      const container = document.getElementById('storedPasswords');
+      container.innerHTML = "<strong>Stored Passwords:</strong><br>" +
+        Object.entries(storedPasswords).map(([e,p])=>`${e}: ${p}`).join('<br>');
+    }
+
+    // --------------- discount codes admin (add / edit / delete) ---------------
+    let editingCode = null;
+
+    function getDiscountCodes() {
+      // Robustly read discountCodes from localStorage — recover from invalid JSON
+      const raw = localStorage.getItem('discountCodes');
+      if (!raw) return {};
+      try {
+        let discountCodes = JSON.parse(raw);
+        // normalize old array format
+        if (Array.isArray(discountCodes)) {
+          const obj = {};
+          discountCodes.forEach(d => {
+            if (!d || !d.code) return;
+            obj[(d.code || '').toLowerCase()] = { value: d.value, type: d.type, used: !!d.used };
+          });
+          discountCodes = obj;
+          localStorage.setItem('discountCodes', JSON.stringify(discountCodes));
+        }
+        // ensure object shape
+        if (typeof discountCodes !== 'object' || discountCodes === null) {
+          throw new Error('discountCodes is not an object');
+        }
+        return discountCodes;
+      } catch (err) {
+        console.error('getDiscountCodes: invalid discountCodes in localStorage — clearing it.', err);
+        // remove corrupt entry so admin can recreate
+        localStorage.removeItem('discountCodes');
+        return {};
+      }
+    }
+
+    function addDiscountCodeAdmin() {
+      try {
+        const codeEl = document.getElementById('codeInput');
+        const valueEl = document.getElementById('discountValue');
+        const typeEl = document.getElementById('codeType');
+        const adminPassEl = document.getElementById('codeAdminPass');
+
+        if (!codeEl || !valueEl || !typeEl || !adminPassEl) {
+          alert('❌ Form elements missing on page.');
+          console.error('Missing elements', { codeEl, valueEl, typeEl, adminPassEl });
+          return;
+        }
+
+        const code = (codeEl.value || '').trim().toLowerCase();
+        const value = Number(valueEl.value);
+        const type = typeEl.value;
+        const adminPass = (adminPassEl.value || '').trim();
+
+        // password compare: trimmed, case-insensitive
+        if (adminPass.toLowerCase() !== ADMIN_PASSWORD.toLowerCase()) {
+          alert("❌ Wrong admin password!");
+          console.warn('Wrong admin password attempt', { entered: adminPass });
+          return;
+        }
+
+        if (!code) { alert('Enter a code'); codeEl.focus(); return; }
+        if (!value || value < 1 || value > 100) { alert('Enter a valid discount percent (1-100)'); valueEl.focus(); return; }
+
+        // optional reserved list
+        const blocked = ["shinliana26"];
+        if (blocked.includes(code)) {
+          alert("❌ This code is reserved and cannot be created here.");
+          return;
+        }
+
+        const discountCodes = getDiscountCodes();
+
+        if (editingCode && editingCode !== code) {
+          delete discountCodes[editingCode];
+        }
+
+        discountCodes[code] = { value, type, used: discountCodes[code]?.used || false };
+        localStorage.setItem('discountCodes', JSON.stringify(discountCodes));
+
+        // reset UI
+        editingCode = null;
+        const addBtn = document.getElementById('addCodeBtn');
+        if (addBtn) addBtn.innerText = 'Add Code';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        codeEl.value = ''; valueEl.value = ''; typeEl.value = 'forever'; adminPassEl.value = '';
+
+        alert(`✅ Code "${code.toUpperCase()}" saved!`);
+        console.log('Discount code saved', { code, value, type });
+        displayDiscountCodes();
+      } catch (err) {
+        console.error('addDiscountCodeAdmin error', err);
+        alert('❌ An error occurred. See console for details.');
+      }
+    }
+
+    function editDiscountCodeAdmin(code) {
+      const discountCodes = getDiscountCodes();
+      const info = discountCodes[code];
+      if (!info) return;
+      editingCode = code;
+      document.getElementById('codeInput').value = code;
+      document.getElementById('discountValue').value = info.value;
+      document.getElementById('codeType').value = info.type;
+      document.getElementById('addCodeBtn').innerText = 'Update Code';
+      document.getElementById('cancelEditBtn').style.display = 'inline-block';
+      document.getElementById('codeAdminPass').value = '';
+      document.getElementById('codeInput').focus();
+    }
+
+    function cancelEdit() {
+      editingCode = null;
+      document.getElementById('codeInput').value = '';
+      document.getElementById('discountValue').value = '';
+      document.getElementById('codeType').value = 'forever';
+      document.getElementById('addCodeBtn').innerText = 'Add Code';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.getElementById('codeAdminPass').value = '';
+    }
+
+    function deleteDiscountCodeAdmin(code) {
+      const discountCodes = getDiscountCodes();
+      if (!discountCodes[code]) return;
+      if (!confirm(`Delete code "${code.toUpperCase()}"?`)) return;
+      delete discountCodes[code];
+      localStorage.setItem('discountCodes', JSON.stringify(discountCodes));
+      alert(`❌ Code "${code}" deleted!`);
+      if (editingCode === code) cancelEdit();
+      displayDiscountCodes();
+    }
+
+    function displayDiscountCodes() {
+      const discountCodes = getDiscountCodes();
+      const container = document.getElementById("discountCodesList");
+      if (container) {
+        container.innerHTML = Object.entries(discountCodes).map(([c, info]) =>
+          `${c.toUpperCase()} - ${info.value}% (${info.type}) ${info.type === "once" && info.used ? "<span style='color:red'>(USED)</span>" : ""}`
+        ).join("<br>") || '<em>No codes</em>';
+      }
+
+      const tbody = document.getElementById('discountTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      Object.entries(discountCodes).forEach(([code, info]) => {
+        const tr = document.createElement('tr');
+        const usedText = info.type === 'once' ? (info.used ? 'Yes' : 'No') : '-';
+        tr.innerHTML = `
+          <td style="text-transform:uppercase;">${code}</td>
+          <td>${info.value}%</td>
+          <td>${info.type}</td>
+          <td>${usedText}</td>
+          <td>
+            <button class="edit-btn" onclick="editDiscountCodeAdmin('${code}')">Edit</button>
+            <button class="delete-btn" onclick="deleteDiscountCodeAdmin('${code}')">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // if there are no codes, show a friendly message row
+      if (!Object.keys(discountCodes).length) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td colspan="5" style="color:#bbb;">No discount codes created yet.</td>`;
+        tbody.appendChild(row);
+      }
+    }
+
+    // expose functions to global scope if needed by inline onclicks
+    window.addDiscountCodeAdmin = addDiscountCodeAdmin;
+    window.editDiscountCodeAdmin = editDiscountCodeAdmin;
+    window.cancelEdit = cancelEdit;
+    window.deleteDiscountCodeAdmin = deleteDiscountCodeAdmin;
+    window.displayDiscountCodes = displayDiscountCodes;
+  </script>
+</body>
+</html>

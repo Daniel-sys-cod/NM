@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <img src="Logo.png" alt="Logo" class="logo">
+
+  <div class="card">
+    <h2>Create Account</h2>
+    <form id="signupForm">
+      <input type="text" id="signupName" placeholder="Full Name" required>
+      <input type="email" id="signupEmail" placeholder="Email" required>
+      <input type="password" id="signupPassword" placeholder="Password" required>
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="SignIn.html">Sign In</a></p>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match.');
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+
+      if (users.find(user => user.email === email)) {
+        alert('Account with this email already exists.');
+        return;
+      }
+
+      users.push({ name, email, password, role: "user" });
+      localStorage.setItem('users', JSON.stringify(users));
+
+      alert('Account created successfully! Please sign in.');
+      window.location.href = 'SignIn.html';
+    });
+  </script>
+</body>
+</html>
