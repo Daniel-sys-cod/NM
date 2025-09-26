@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Purchase Diamonds</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000000;
+      color: rgb(255, 255, 255);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+    }
+    .container { display:flex; justify-content:center; align-items:center; flex-grow:1; }
+    .purchase {
+      background: rgba(20,20,40,0.95);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 400px;
+      box-shadow: 0 0 15px #00d4ff;
+    }
+    h2 { text-align:center; margin-bottom:20px; color:#00d4ff; }
+    label { display:block; margin-top:12px; font-weight:bold; }
+    input { width:100%; padding:10px; margin-top:5px; border-radius:6px; border:none; background:#1a1a2e; color:white; }
+    button {
+      margin-top:20px; width:100%; padding:12px; background:#ff0055; border:none; color:#fff; font-size:16px; border-radius:6px; cursor:pointer;
+    }
+    button:hover { background:#e6004c; }
+    #priceBox { text-align:center; margin-top:15px; font-size:16px; font-weight:bold; color:#ffcc00; }
+    input[type="file"] { background:#1a1a2e; color:white; border:1px solid #00d4ff; padding:8px; border-radius:6px; cursor:pointer; }
+    input[type="file"]::file-selector-button { background:#ff0055; border:none; padding:8px 12px; border-radius:6px; color:white; cursor:pointer; }
+    input[type="file"]::file-selector-button:hover { background:#e6004c; }
+    .payment-info { background:rgba(0,212,255,0.1); border:1px solid #00d4ff; padding:15px; margin-bottom:20px; border-radius:8px; text-align:center; }
+    .diamond-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+    .diamond-box { background:#1a1a2e; border:2px solid #00d4ff; border-radius:8px; padding:10px; text-align:center; cursor:pointer; transition:0.2s; }
+    .diamond-box:hover { background:#002244; }
+    .diamond-box.selected { border:2px solid #ffcc00; background:#333366; }
+    .warning { background:#ff4444; color:white; text-align:center; padding:10px; border-radius:6px; margin-bottom:15px; font-weight:bold; }
+    .payment-method { display:none; margin-top:15px; background:#1a1a2e; padding:10px; border-radius:6px; border:1px solid #00d4ff; }
+    footer { background:#111; color:#aaa; text-align:center; padding:10px; font-size:14px; margin-top:auto; }
+    #google_translate_element {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1200;
+      background: #fff;
+      color: #000;
+      border-radius: 8px;
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+    }
+    .goog-te-banner-frame.skiptranslate, .goog-te-balloon-frame { display:none !important; }
+    body { top: 0 !important; }
+    .goog-te-gadget { color:#000 !important; }
+    .goog-te-gadget select {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+  </style>
+</head>
+<body>
+  <!-- inline translator -->
+  <div id="google_translate_element" aria-hidden="false"></div>
+
+  <div class="container">
+    <div class="purchase">
+      <div class="warning">⚠️ Warning: If details of the order do not match, you will be banned!</div>
+      <h2>Purchase Diamonds</h2>
+
+      <form id="purchaseForm">
+        <label>User ID</label>
+        <input type="text" id="userId" required>
+
+        <label>Zone ID</label>
+        <input type="text" id="zoneId" required>
+
+        <label>In-Game Name (IGN)</label>
+        <input type="text" id="ign" placeholder="Enter your MLBB username" required>
+
+        <label>Account Name</label>
+        <input type="text" id="accountName" required>
+
+        <label>Select Diamond Package</label>
+
+        <h3>Normal Packages</h3>
+        <div class="diamond-options" id="diamondOptions">
+          <div class="diamond-box" data-price="3900" data-text="55 Diamonds - 3,900 MMK">55 Diamonds<br><small>3,900 MMK</small></div>
+          <div class="diamond-box" data-price="5600" data-text="98 Diamonds - 5,600 MMK">98 Diamonds<br><small>5,600 MMK</small></div>
+          <div class="diamond-box" data-price="14000" data-text="174 Diamonds - 14,000 MMK">174 Diamonds<br><small>14,000 MMK</small></div>
+          <div class="diamond-box" data-price="22000" data-text="257 Diamonds - 22,000 MMK">257 Diamonds<br><small>22,000 MMK</small></div>
+          <div class="diamond-box" data-price="38000" data-text="588 Diamonds - 38,000 MMK">588 Diamonds<br><small>38,000 MMK</small></div>
+          <div class="diamond-box" data-price="50000" data-text="706 Diamonds - 50,000 MMK">706 Diamonds<br><small>50,000 MMK</small></div>
+          <div class="diamond-box" data-price="150000" data-text="2,185 Diamonds - 150,000 MMK">2,185 Diamonds<br><small>150,000 MMK</small></div>
+          <div class="diamond-box" data-price="240000" data-text="3,689 Diamonds - 240,000 MMK">3,689 Diamonds<br><small>240,000 MMK</small></div>
+          <div class="diamond-box" data-price="388000" data-text="3,532 Diamonds - 388,000 MMK">3,532 Diamonds<br><small>388,000 MMK</small></div>
+          <div class="diamond-box" data-price="657250" data-text="8,265 Diamonds - 657,250 MMK">8,265 Diamonds<br><small>657,250 MMK</small></div>
+        </div>
+
+        <h3>Double Packages</h3>
+        <div class="diamond-options">
+          <div class="diamond-box" data-price="22000" data-text="257 Diamonds (Double) - 22,000 MMK">257 Diamonds (Double)<br><small>22,000 MMK</small></div>
+          <div class="diamond-box" data-price="38000" data-text="588 Diamonds (Double) - 38,000 MMK">588 Diamonds (Double)<br><small>38,000 MMK</small></div>
+        </div>
+
+        <h3>Pass Packages</h3>
+        <div class="diamond-options">
+          <div class="diamond-box" data-price="50000" data-text="Starlight Pass - 50,000 MMK">Starlight Pass<br><small>50,000 MMK</small></div>
+          <div class="diamond-box" data-price="150000" data-text="Twilight Pass - 150,000 MMK">Twilight Pass<br><small>150,000 MMK</small></div>
+        </div>
+
+        <h3>Bundle Packages</h3>
+        <div class="diamond-options">
+          <div class="diamond-box" data-price="240000" data-text="M Bundle - 240,000 MMK">M Bundle<br><small>240,000 MMK</small></div>
+          <div class="diamond-box" data-price="388000" data-text="SG Bundle - 388,000 MMK">SG Bundle<br><small>388,000 MMK</small></div>
+        </div>
+
+        <div id="selectedInfo" style="display:none; margin-top:15px; background:#1a1a2e; border:1px solid #00d4ff; border-radius:6px; padding:10px; text-align:center;">
+          <p id="selectedDiamondText" style="color:#ffcc00; font-weight:bold;">Diamonds: -</p>
+
+          <label>Discount Code</label>
+          <input type="text" id="discountCode" placeholder="Enter discount code" style="width:96%; padding:8px; border-radius:6px; border:none; background:#333366; color:white; margin-bottom:8px;">
+          <p id="discountPrice" style="color:#00ff00; font-weight:bold; display:none;">Discounted Price: - MMK</p>
+
+          <label>Select Payment Method</label>
+          <select id="paymentSelectInfo" style="padding:8px; border-radius:6px; border:none; background:#333366; color:white;">
+            <option value="">-- Choose --</option>
+            <option value="KPay">KPay</option>
+            <option value="WavePay">WavePay</option>
+          </select>
+
+          <div id="paymentDetails" style="margin-top:8px; color:#00ff00; font-weight:bold;"></div>
+        </div>
+
+        <input type="hidden" id="diamondAmount" required>
+        <input type="hidden" id="diamondText">
+
+        <div id="priceBox">Price: -</div>
+
+        <label>Payment Screenshot</label>
+        <input type="file" id="screenshot" accept="image/*" required>
+
+        <button type="submit">Submit Order</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>© All Rights Reserved</footer>
+
+  <!-- =============================
+       Merged JS Script
+       ============================= -->
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const diamondBoxes = document.querySelectorAll(".diamond-box");
+  const selectedInfoBox = document.getElementById("selectedInfo");
+  const selectedDiamondText = document.getElementById("selectedDiamondText");
+  const priceBox = document.getElementById("priceBox");
+  const discountInput = document.getElementById("discountCode");
+  const discountPriceText = document.getElementById("discountPrice");
+  const paymentSelectInfo = document.getElementById("paymentSelectInfo");
+  const paymentDetails = document.getElementById("paymentDetails");
+  const diamondAmountInput = document.getElementById("diamondAmount");
+  const diamondTextInput = document.getElementById("diamondText");
+  const purchaseForm = document.getElementById("purchaseForm");
+
+  // helper: detect Pass packages (case-insensitive)
+  function isPassPackage() {
+    const text = (diamondTextInput?.value || '').toLowerCase();
+    return text.includes('pass');
+  }
+
+  // diamond selection
+  if (diamondBoxes && diamondBoxes.length) {
+    diamondBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        diamondBoxes.forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+
+        const price = box.dataset.price || '';
+        const text = box.dataset.text || '';
+        if (diamondAmountInput) diamondAmountInput.value = price;
+        if (diamondTextInput) diamondTextInput.value = text;
+        if (priceBox) priceBox.innerText = `Price: ${price || '-'} MMK`;
+        if (selectedInfoBox) selectedInfoBox.style.display = 'block';
+        if (selectedDiamondText) selectedDiamondText.innerText = `Diamond: ${text || '-'}`;
+
+        if (discountInput) discountInput.value = '';
+        if (discountPriceText) discountPriceText.style.display = 'none';
+      });
+    });
+  }
+
+  // live discount preview / validation
+  discountInput?.addEventListener('input', () => {
+    const base = Number(diamondAmountInput?.value) || 0;
+    const code = (discountInput.value || '').trim().toLowerCase();
+    const discountCodes = JSON.parse(localStorage.getItem("discountCodes")) || {};
+    const info = discountCodes[code];
+
+    if (!priceBox) return;
+
+    // Block Shinliana26 for pass packages
+    if (code === 'shinliana26' && isPassPackage()) {
+      if (discountPriceText) discountPriceText.style.display = 'none';
+      priceBox.innerText = `Price: ${base} MMK (Code not valid for Pass packages)`;
+      return;
+    }
+
+    if (info) {
+      if (info.type === 'once' && info.used) {
+        if (discountPriceText) discountPriceText.style.display = 'none';
+        priceBox.innerText = `Price: ${base} MMK (Code already used)`;
+        return;
+      }
+      const discounted = Math.round(base * (1 - info.value / 100));
+      if (discountPriceText) {
+        discountPriceText.innerText = `Discounted Price: ${discounted} MMK`;
+        discountPriceText.style.display = 'block';
+      }
+      priceBox.innerText = `Price: ${discounted} MMK`;
+    } else if (code === 'shinliana26') {
+      // If code exists as a special-case allowed non-pass code (example 5%),
+      // apply it only when not a pass package (we already returned for pass above).
+      const discounted = Math.round(base * 0.95);
+      if (discountPriceText) {
+        discountPriceText.innerText = `Discounted Price: ${discounted} MMK`;
+        discountPriceText.style.display = 'block';
+      }
+      priceBox.innerText = `Price: ${discounted} MMK`;
+    } else {
+      if (discountPriceText) discountPriceText.style.display = 'none';
+      priceBox.innerText = `Price: ${base || "-"} MMK`;
+    }
+  });
+
+  // payment details UI
+  function updatePaymentDetails(method) {
+    if (!paymentDetails) return;
+    if (method === "WavePay") {
+      paymentDetails.innerHTML = `
+        <img src="wavepay.png" alt="WavePay Logo"><br>
+        👤 Nay Win Hein<br>
+        📞 09984198837
+      `;
+      paymentDetails.style.display = "block";
+    } else if (method === "KPay") {
+      paymentDetails.innerHTML = `
+        <img src="kpay.png" alt="KPay Logo"><br>
+        👤 U Nay Lin Aung<br>
+        📞 09251581780
+      `;
+      paymentDetails.style.display = "block";
+    } else {
+      paymentDetails.style.display = "none";
+    }
+  }
+  paymentSelectInfo?.addEventListener("change", () => updatePaymentDetails(paymentSelectInfo.value));
+  updatePaymentDetails(paymentSelectInfo?.value);
+
+  // submit handler: enforce Shinliana26 blocking for Pass packages
+  purchaseForm?.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) { alert("Please sign in first."); return; }
+
+    const file = document.getElementById("screenshot")?.files?.[0];
+    if (!file) { alert("Please upload a payment screenshot."); return; }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const screenshotData = e.target.result;
+      const basePrice = Number(diamondAmountInput?.value) || 0;
+      const code = (discountInput?.value || '').trim().toLowerCase();
+      const discountCodes = JSON.parse(localStorage.getItem("discountCodes")) || {};
+      const discountInfo = discountCodes[code];
+      let finalPrice = basePrice;
+
+      // Block Shinliana26 for Pass packages at submit time
+      if (code === 'shinliana26' && isPassPackage()) {
+        alert("The code 'Shinliana26' cannot be used for Pass packages.");
+        return;
+      }
+
+      if (discountInfo) {
+        if (discountInfo.type === 'once' && discountInfo.used) {
+          alert("Discount code already used!");
+          return;
+        }
+        finalPrice = Math.round(basePrice * (1 - discountInfo.value / 100));
+        if (discountInfo.type === 'once') {
+          discountInfo.used = true;
+          discountCodes[code] = discountInfo;
+          localStorage.setItem("discountCodes", JSON.stringify(discountCodes));
+        }
+      } else if (code === 'shinliana26') {
+        // apply special-case for non-pass items (example 5%)
+        finalPrice = Math.round(basePrice * 0.95);
+      }
+
+      const order = {
+        userId: document.getElementById("userId")?.value || "",
+        zoneId: document.getElementById("zoneId")?.value || "",
+        ign: document.getElementById("ign")?.value || "",
+        accountName: document.getElementById("accountName")?.value || "",
+        diamondPackage: document.getElementById("diamondText")?.value || "",
+        price: finalPrice,
+        originalPrice: basePrice,
+        paymentMethod: paymentSelectInfo?.value || "",
+        date: new Date().toLocaleString(),
+        screenshot: screenshotData,
+        customerEmail: user.email || "",
+        status: "Pending"
+      };
+
+      const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+      orders.push(order);
+      localStorage.setItem("orders", JSON.stringify(orders));
+
+      alert("✅ Order submitted successfully! Final price: " + finalPrice + " MMK");
+      window.location.href = "dashboard.html";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // safe admin helpers (optional)
+  window.addDiscountCode = function () {
+    const code = document.getElementById('codeInput')?.value.trim().toLowerCase();
+    const value = Number(document.getElementById('discountValue')?.value);
+    const type = document.getElementById('codeType')?.value;
+    const adminPass = document.getElementById('codeAdminPass')?.value;
+    const ADMIN_PASSWORD = "kingbot123";
+    if (adminPass !== ADMIN_PASSWORD) { alert("❌ Wrong admin password!"); return; }
+    if (!code || !value) { alert("Enter valid code and value!"); return; }
+    let discountCodes = JSON.parse(localStorage.getItem('discountCodes')) || {};
+    discountCodes[code] = { value, type, used: false };
+    localStorage.setItem('discountCodes', JSON.stringify(discountCodes));
+    alert(`✅ Code "${code}" added!`);
+    displayDiscountCodes();
+  };
+
+  window.deleteDiscountCode = function (code) {
+    let discountCodes = JSON.parse(localStorage.getItem('discountCodes')) || {};
+    delete discountCodes[code];
+    localStorage.setItem('discountCodes', JSON.stringify(discountCodes));
+    alert(`❌ Code "${code}" deleted!`);
+    displayDiscountCodes();
+  };
+
+  function displayDiscountCodes() {
+    const discountCodes = JSON.parse(localStorage.getItem("discountCodes")) || {};
+    const container = document.getElementById("discountCodesList");
+    if (!container) return;
+    container.innerHTML = "<strong>Available Codes:</strong><br>" +
+      Object.entries(discountCodes).map(([c, info]) =>
+        `${c.toUpperCase()} - ${info.value}% (${info.type}) ${info.type === "once" && info.used ? "<span style='color:red'>(USED)</span>" : ""} <button onclick="deleteDiscountCode('${c}')">Delete</button>`
+      ).join("<br>");
+  }
+  displayDiscountCodes();
+});
+  </script>
+
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>
+
+

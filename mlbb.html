@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLBB Top Up</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Payment Box Styling */
+    .payment-box {
+      display: none; /* hidden by default */
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid #00d4ff;
+      border-radius: 10px;
+      background: rgba(0, 217, 255, 0.1);
+      box-shadow: 0 0 10px #00d4ff;
+    }
+
+    .payment-box h3 {
+      margin-bottom: 10px;
+      color: #00d4ff;
+    }
+
+    .payment-box label {
+      display: block;
+      margin: 8px 0;
+    }
+
+    .price-text {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+
+    /* Warning Box */
+    .warning {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 0, 85, 0.1);
+      border: 1px solid #ff0055;
+      color: #ff4d6d;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    /* ✅ Google Translate Box */
+    #google_translate_element {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 2000;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid #00d9ff;
+      border-radius: 8px;
+      padding: 5px 10px;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* ✅ Hide ugly Google default banner */
+    .goog-te-banner-frame.skiptranslate,
+    .goog-te-balloon-frame {
+      display: none !important;
+    }
+    body {
+      top: 0px !important;
+    }
+
+    /* ✅ Dropdown styling */
+    .goog-te-gadget {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      color: white !important;
+    }
+    .goog-te-gadget select {
+      background: #1a1a2e;
+      color: white;
+      border: 1px solid #00d4ff;
+      border-radius: 6px;
+      padding: 5px 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="dashboard-body">
+
+<!-- ✅ Google Translate Dropdown -->
+<div id="google_translate_element"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <img src="logo.png" alt="Logo" class="logo">
+    <ul class="nav-links">
+      <li><a href="home.html">Home</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="guide.html">Guide</a></li>
+      <li><a href="index.html">Logout</a></li>
+    </ul>
+  </header>
+
+  <!-- Purchase Form -->
+  <main class="purchase">
+    <h2>Mobile Legends: Bang Bang Top-Up</h2>
+
+    <form action="#">
+      <!-- User ID -->
+      <label for="userId">Enter User ID:</label>
+      <input type="text" id="userId" name="userId" placeholder="e.g. 12345678" required>
+
+      <!-- Diamond Packages -->
+      <label>Select Diamond Package:</label>
+      <select id="diamondSelect" name="diamonds" required>
+        <option value="">-- Choose a package --</option>
+        <option value="50" data-price="1500">50 Diamonds - 1500 MMK</option>
+        <option value="100" data-price="2800">100 Diamonds - 2800 MMK</option>
+        <option value="250" data-price="6500">250 Diamonds - 6500 MMK</option>
+        <option value="500" data-price="12000">500 Diamonds - 12000 MMK</option>
+      </select>
+
+      <!-- Payment Box (hidden until package is selected) -->
+      <div class="payment-box" id="paymentBox">
+        <h3>Choose Payment Method</h3>
+        <label><input type="radio" name="paymentMethod" value="KPay" required> KPay</label>
+        <label><input type="radio" name="paymentMethod" value="WavePay" required> WavePay</label>
+        <p class="price-text" id="priceText">Price: --</p>
+
+        <!-- Warning -->
+        <div class="warning">
+          ⚠️ Please put <strong>MDM's Shop</strong> in the payment note.  
+          If your order/payment details are incorrect, your account may get <span style="color:red;">banned</span>.
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit">Proceed to Payment</button>
+    </form>
+  </main>
+
+  <script>
+    // Handle diamond package selection
+    const diamondSelect = document.getElementById("diamondSelect");
+    const paymentBox = document.getElementById("paymentBox");
+    const priceText = document.getElementById("priceText");
+
+    diamondSelect.addEventListener("change", function () {
+      const selectedOption = diamondSelect.options[diamondSelect.selectedIndex];
+      const price = selectedOption.getAttribute("data-price");
+
+      if (price) {
+        paymentBox.style.display = "block";
+        priceText.textContent = `Price: ${price} MMK`;
+      } else {
+        paymentBox.style.display = "none";
+      }
+    });
+  </script>
+
+  <!-- ✅ Google Translate Script -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        includedLanguages: 'en,my,pt', // English, Myanmar, Portuguese (Brazil)
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>

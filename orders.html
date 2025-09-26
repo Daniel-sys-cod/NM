@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #0d0d1a; color: white; margin: 0; padding: 20px; }
+    h2 { text-align: center; color: #00d4ff; margin-bottom: 20px; }
+    .table-container { overflow-x: auto; max-width: 100%; }
+    table { width: 100%; border-collapse: collapse; background: #1a1a2e; border-radius: 10px; overflow: hidden; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; font-size: 14px; color: white; }
+    th { background-color: #00d4ff; color: black; position: sticky; top: 0; z-index: 2; }
+    tr:nth-child(even) { background-color: rgba(255,255,255,0.05); }
+    tr:hover { background-color: rgba(0,212,255,0.1); }
+    input[type="text"] { padding: 4px; border-radius: 4px; border: none; width: 90%; background: #0d0d1a; color: white; }
+    button { padding: 4px 8px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .save-btn { background: #00d4ff; color: black; }
+    .delete-btn { background: #ff0055; color: white; }
+    img { max-width: 80px; border-radius: 6px; }
+    .notification-badge {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: red;
+      color: white;
+      font-weight: bold;
+      padding: 6px 12px;
+      border-radius: 50%;
+      z-index: 1000;
+      display: none;
+    }
+    .new-order { background-color: rgba(0,255,0,0.2) !important; }
+  </style>
+</head>
+<body>
+<h2>Orders List</h2>
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>User ID</th>
+        <th>Zone ID</th>
+        <th>In-game Name</th>
+        <th>Account Name</th>
+        <th>Package</th>
+        <th>Price</th>
+        <th>Email</th>
+        <th>Admin</th>
+        <th>Screenshot</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="ordersTableBody"></tbody>
+  </table>
+</div>
+
+<!-- 🔔 Notification badge -->
+<div id="notificationBadge" class="notification-badge"></div>
+
+<!-- 🔊 Message notification sound -->
+<audio id="notifSound" src="https://actions.google.com/sounds/v1/communications/message_sent.ogg" preload="auto"></audio>
+
+<script>
+let lastOrderCount = 0;
+
+function playSound() {
+  const sound = document.getElementById("notifSound");
+  sound.currentTime = 0;
+  sound.play().catch(err => console.log("Autoplay blocked until interaction:", err));
+}
+
+function loadOrders(playSoundOnNew = false) {
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const tbody = document.getElementById("ordersTableBody");
+  tbody.innerHTML = "";
+
+  orders.forEach((order, index) => {
+    const tr = document.createElement("tr");
+    if (!order.seenByAdmin) tr.classList.add("new-order");
+
+    tr.innerHTML = `
+      <td>${order.date}</td>
+      <td style="color:${order.status === "Completed" ? "lime" : "orange"};">${order.status || "Pending"}</td>
+      <td>${order.userId}</td>
+      <td>${order.zoneId}</td>
+      <td>${order.ingameName || "N/A"}</td>
+      <td>${order.accountName}</td>
+      <td>${order.diamondPackage}</td>
+      <td>${order.price} MMK</td>
+      <td>${order.customerEmail}</td>
+      <td>
+        <input type="text" id="adminName-${index}" value="${order.admin || ""}" ${order.admin ? "disabled" : ""}>
+        <button class="save-btn" onclick="saveAdmin(${index})" ${order.admin ? "disabled" : ""}>Save</button>
+      </td>
+      <td>${order.screenshot ? `<img src="${order.screenshot}" alt="Screenshot">` : ""}</td>
+      <td>
+        ${order.status !== "Completed" ? `<button class="save-btn" onclick="markCompleted(${index})">Mark Completed</button>` : ""}
+        <br>
+        <button class="delete-btn" onclick="deleteOrder(${index})">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    order.seenByAdmin = true;
+  });
+
+  localStorage.setItem("orders", JSON.stringify(orders));
+
+  // 🔔 Play sound + show badge if new orders
+  if (orders.length > lastOrderCount && playSoundOnNew) {
+    playSound();
+    showNotification(orders.length - lastOrderCount);
+  }
+
+  lastOrderCount = orders.length;
+}
+
+function showNotification(count) {
+  const badge = document.getElementById("notificationBadge");
+  badge.style.display = "block";
+  badge.innerText = count;
+  setTimeout(() => { badge.style.display = "none"; }, 5000);
+}
+
+function saveAdmin(index) {
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const adminInput = document.getElementById(`adminName-${index}`);
+  if (adminInput.value.trim() === "") { alert("Admin name cannot be empty!"); return; }
+  orders[index].admin = adminInput.value.trim();
+  localStorage.setItem("orders", JSON.stringify(orders));
+  alert("✅ Admin assigned successfully!");
+  adminInput.disabled = true;
+  adminInput.nextElementSibling.disabled = true;
+}
+
+function deleteOrder(index) {
+  const pass = prompt("Enter admin password to delete:");
+  if (pass !== "NMarian") { alert("❌ Wrong password!"); return; }
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.splice(index, 1);
+  localStorage.setItem("orders", JSON.stringify(orders));
+  alert("🗑️ Order deleted successfully!");
+  loadOrders();
+}
+
+function markCompleted(index) {
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders[index].status = "Completed";
+  localStorage.setItem("orders", JSON.stringify(orders));
+  alert("✅ Order marked as Completed!");
+  loadOrders();
+}
+
+// 🔄 Auto-refresh every 5s, with sound
+setInterval(() => loadOrders(true), 5000);
+
+// First load (no sound)
+loadOrders();
+</script>
+</body>
+</html>
